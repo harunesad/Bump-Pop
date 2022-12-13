@@ -5,23 +5,35 @@ using UnityEngine;
 public class BallSystem : MonoBehaviour
 {
     public static BallSystem ball;
-    BallControl ballControl;
-    CashControl cashControl;
+    public BallControl ballControl;
+    public CashControl cashControl;
 
     GameObject ballPrefab;
-    public int collisionCount;
-    //public List<GameObject> balls;
+    public float collisionCountBall;
+    public float collisionCountCash;
+    public int spawnBallCount;
     private void Awake()
     {
         ball = this;
     }
     void Start()
     {
+        if (PlayerPrefs.HasKey("BallCount"))
+        {
+            spawnBallCount = PlayerPrefs.GetInt("BallCount");
+        }
+        else
+        {
+            spawnBallCount = 10;
+            PlayerPrefs.SetInt("BallCount", spawnBallCount);
+        }
+
         ballControl = FindObjectOfType<BallControl>();
         ballControl.BallToStart();
 
         cashControl = FindObjectOfType<CashControl>();
         cashControl.CashToStart();
+        collisionCountCash = cashControl.cashCount;
     }
     void Update()
     {
@@ -30,18 +42,25 @@ public class BallSystem : MonoBehaviour
     public void Collision(Collision collision, GameObject myObj)
     {
         ballPrefab = collision.gameObject;
-        ballPrefab.layer = 0;
+        ballPrefab.layer = 6;
         ballPrefab.AddComponent<Rigidbody>();
-        PhysicMaterial physicMaterial = myObj.GetComponent<SphereCollider>().material;
-        ballPrefab.GetComponent<SphereCollider>().material = physicMaterial;
-        ballPrefab.GetComponent<Rigidbody>().drag = 1;
-        //balls.Add(ballPrefab);
 
-        collisionCount++;
-        for (int i = 0; i < 10; i++)
+        PhysicMaterial physicMaterial = myObj.GetComponent<SphereCollider>().material;
+        myObj.GetComponent<Rigidbody>().mass = 10;
+        Destroy(myObj.GetComponent<SphereCollider>().material);
+
+        ballPrefab.AddComponent<StartForce>();
+        ballPrefab.GetComponent<StartForce>().force = 1;
+
+        ballPrefab.GetComponent<SphereCollider>().material = physicMaterial;
+        ballPrefab.GetComponent<Rigidbody>().drag = 2;
+        ballPrefab.GetComponent<Rigidbody>().angularDrag = 1;
+
+        collisionCountCash++;
+        collisionCountBall++;
+        for (int i = 0; i < spawnBallCount; i++)
         {
             var ball = Instantiate(ballPrefab, collision.transform.position, Quaternion.identity);
-            //balls.Add(ball);
 
             ballControl.enabled = true;
             cashControl.enabled = true;
@@ -55,6 +74,5 @@ public class BallSystem : MonoBehaviour
                 cashControl.InvokeRepeating("CashInc", 0, 0.01f);
             }
         }
-        Destroy(FindObjectOfType<DragAndShoot>());
     }
 }

@@ -6,7 +6,7 @@ using TMPro;
 public class BallControl : MonoBehaviour
 {
     public TextMeshProUGUI ballText;
-    int ballCount;
+    public int ballCount;
     void Start()
     {
         InvokeRepeating("BallInc", 0, 0.01f);
@@ -19,7 +19,7 @@ public class BallControl : MonoBehaviour
     {
         ballCount++;
         ballText.text = ballCount.ToString();
-        if (ballCount > BallSystem.ball.collisionCount * 10)
+        if (ballCount > BallSystem.ball.collisionCountBall * BallSystem.ball.spawnBallCount)
         {
             CancelInvoke();
         }

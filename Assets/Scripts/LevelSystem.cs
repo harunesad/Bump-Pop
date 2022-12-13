@@ -22,7 +22,6 @@ public class LevelSystem : MonoBehaviour
     private void Awake()
     {
         level = this;
-        startText.onClick.AddListener(StartGame);
     }
     void Start()
     {
@@ -51,5 +50,7 @@ public class LevelSystem : MonoBehaviour
     {
         isStart = true;
         startText.gameObject.SetActive(false);
+        ShopSystem.shop.shopPanel.SetActive(false);
+        ShopSystem.shop.gamePanel.SetActive(true);
     }
 }

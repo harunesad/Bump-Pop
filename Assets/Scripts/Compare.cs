@@ -18,27 +18,21 @@ public class Compare : MonoBehaviour
     void Update()
     {
         NewBall();
-        //for (int i = 0; i < BallSystem.ball.balls.Count; i++)
-        //{
-        //    Rigidbody rigidbody = BallSystem.ball.balls[i].GetComponent<Rigidbody>();
-        //    if (rigidbody.velocity.magnitude == 0 && FindObjectsOfType<DragAndShoot>().Length == 0)
-        //    {
-        //        myBall.gameObject.AddComponent<DragAndShoot>();
-        //    }
-        //}
         Rigidbody rigidbody = myBall.GetComponent<Rigidbody>();
-        if (rigidbody.velocity.magnitude == 0 && FindObjectsOfType<DragAndShoot>().Length == 0)
+        if (rigidbody.velocity.magnitude < 1)
         {
-            myBall.gameObject.AddComponent<DragAndShoot>();
+            DragAndShoot.dragShoot.rb = rb;
+            DragAndShoot.dragShoot.rb.mass = 1;
         }
         virtualCamera.Follow = myBall.transform;
-        virtualCamera.LookAt = myBall.transform;
-        //CamFollow.instance.StartAction();
+        //virtualCamera.LookAt = myBall.transform;
+        CamFollow.instance.rb = myBall.GetComponent<Rigidbody>();
     }
     public void NewBall()
     {
         rb = FindObjectsOfType<Rigidbody>().OrderBy(t => Vector3.Distance(transform.position, t.transform
         .position)).FirstOrDefault();
         myBall = rb.gameObject;
+        DragAndShoot.dragShoot.rb = rb;
     }
 }

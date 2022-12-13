@@ -1,29 +1,57 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class CamFollow : MonoBehaviour
 {
     public static CamFollow instance;
+    public CinemachineVirtualCamera virtualCamera;
+    public CinemachineSmoothPath smoothPath;
+    public GameObject target;
+    int followIndex = 6;
+    bool moveTarget;
     public GameObject ball;
+    public Rigidbody rb;
     public Vector3 offset;
     float followSpeed = 5;
     float distance;
     Vector3 playerPrevPos, playerMoveDir;
-    
+    Transform lookAtTransform;
+
     private void Awake()
     {
         instance = this;
     }
     void Start()
     {
+        Vector3 pos = -smoothPath.m_Waypoints[followIndex].position + Vector3.forward * 764;
+        target.transform.position = pos;
+        virtualCamera.LookAt = target.transform;;
         //StartAction();
         //offset = -Compare.compare.myBall.transform.position + transform.position;
     }
-    void LateUpdate()
+    void Update()
     {
+        //Debug.Log(Vector3.Distance(virtualCamera.transform.position, -smoothPath.m_Waypoints[followIndex].position + Vector3.forward * 764));
+        if (Vector3.Distance(virtualCamera.transform.position, -smoothPath.m_Waypoints[followIndex].position + Vector3.forward * 764) < 60)
+        {
+            followIndex--;
+            moveTarget = true;
+        }
+        if (moveTarget == true)
+        {
+            Vector3 pos = -smoothPath.m_Waypoints[followIndex].position + Vector3.forward * 764;
+            target.transform.position = Vector3.MoveTowards(target.transform.position, pos, Time.deltaTime * 50);
+            virtualCamera.LookAt = target.transform;
+            if (Vector3.Distance(target.transform.position, -smoothPath.m_Waypoints[followIndex].position + Vector3.forward * 764) < 1)
+            {
+                moveTarget = false;
+            }
+        }
+        //First();
+        //Compare.compare.myBall.GetComponent<DragAndShoot>().Rotate(gameObject);
         //Third();
-        First();
     }
     public void StartAction()
     {
@@ -55,7 +83,13 @@ public class CamFollow : MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, pos, 5 * Time.deltaTime);
             Debug.Log(pos);
 
-            transform.LookAt(Compare.compare.myBall.transform.position);
+            if (rb.velocity.magnitude > 2f)
+            {
+                float firstPosX = Compare.compare.myBall.GetComponent<DragAndShoot>().mousePressDownPos.x;
+                float lastPosX = Compare.compare.myBall.GetComponent<DragAndShoot>().mouseReleasePos.x;
+                transform.LookAt(Compare.compare.myBall.transform.position);
+                //camera.transform.Rotate(0, Time.deltaTime * (mousePressDownPos.x - mouseReleasePos.x) / 50, 0);
+            }
 
             playerPrevPos = Compare.compare.myBall.transform.position;
         }
